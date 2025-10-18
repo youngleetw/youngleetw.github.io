@@ -1,9 +1,16 @@
-# About
-This is the demo site for [Fuwari](https://github.com/saicaca/fuwari).
+# About Me
 
-::github{repo="saicaca/fuwari"}
+Hi, I'm **Young_Lee**!
 
-> ### Sources of images used in this site
-> - [Unsplash](https://unsplash.com/)
-> - [星と少女](https://www.pixiv.net/artworks/108916539) by [Stella](https://www.pixiv.net/users/93273965)
-> - [Rabbit - v1.4 Showcase](https://civitai.com/posts/586908) by [Rabbit_YourMajesty](https://civitai.com/user/Rabbit_YourMajesty)
+Welcome to my personal website. This is where I share my thoughts, projects, and experiences.
+
+## Get in Touch
+
+Feel free to reach out to me through:
+- [GitHub](https://github.com/youngleetw)
+- [LinkedIn](https://linkedin.com/in/youngleetw)
+- Email: your.email@example.com
+
+---
+
+*This site is built with [Astro](https://astro.build) and hosted on GitHub Pages.*
