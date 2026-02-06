@@ -40,7 +40,16 @@ export const siteConfig: SiteConfig = {
 };
 
 export const navBarConfig: NavBarConfig = {
-	links: [LinkPreset.Home, LinkPreset.Archive, LinkPreset.About],
+	links: [
+		LinkPreset.Home,
+		LinkPreset.Archive,
+		LinkPreset.About,
+		{
+			name: "GitHub",
+			url: "https://github.com/youngleetw",
+			external: true,
+		},
+	],
 };
 
 export const profileConfig: ProfileConfig = {
