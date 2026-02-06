@@ -11,8 +11,4 @@ Hi, 我是 **Young_Lee** !
 非常歡迎以各種方式聯繫我，不管是技術討論還是問題 :
 - [GitHub](https://github.com/youngleetw)
 - [LinkedIn](https://www.linkedin.com/in/young-lee-58872a32b)
-- Email: younglee.tw@gmail.com
 
----
-
-*This site is built with [Astro](https://astro.build) and hosted on GitHub Pages.*
