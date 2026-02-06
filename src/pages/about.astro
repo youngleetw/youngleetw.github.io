@@ -5,6 +5,8 @@ import Markdown from "@components/misc/Markdown.astro";
 import I18nKey from "../i18n/i18nKey";
 import { i18n } from "../i18n/translation";
 import MainGridLayout from "../layouts/MainGridLayout.astro";
+import { timelineItems } from "../constants/young-info";
+import { Icon } from "astro-icon/components";
 
 const aboutPost = await getEntry("spec", "about");
 
@@ -13,13 +15,238 @@ if (!aboutPost) {
 }
 
 const { Content } = await render(aboutPost);
+
+// Group items by year
+const groupedItems = timelineItems.reduce((acc, item) => {
+    const year = item.datetime.substring(0, 4);
+    if (!acc[year]) {
+        acc[year] = [];
+    }
+    acc[year].push(item);
+    return acc;
+}, {} as Record<string, typeof timelineItems>);
+
+const years = Object.keys(groupedItems).sort((a, b) => b.localeCompare(a));
+
+const categoryIcons = {
+    "證照": "fa6-solid:certificate",
+    "競賽": "fa6-solid:trophy",
+    "參與": "fa6-solid:user-group",
+    "實習": "fa6-solid:briefcase"
+};
+
+function formatDate(dateStr: string, category: string) {
+    if (category === "實習") {
+        return dateStr.replace(/ /g, '');
+    }
+    const match = dateStr.match(/(\d{4})[./](\d{2})[./](\d{2})/);
+    if (match) {
+        return `${match[2]}-${match[3]}`;
+    }
+    const monthMatch = dateStr.match(/(\d{4})\.(\d{2})/);
+    if (monthMatch) {
+        return monthMatch[2];
+    }
+    return dateStr;
+}
 ---
 <MainGridLayout title={i18n(I18nKey.about)} description={i18n(I18nKey.about)}>
     <div class="flex w-full rounded-[var(--radius-large)] overflow-hidden relative min-h-32">
-        <div class="card-base z-10 px-9 py-6 relative w-full ">
+        <div class="card-base z-10 px-6 md:px-9 py-6 relative w-full ">
+            
             <Markdown class="mt-2">
                 <Content />
             </Markdown>
+
+            <div class="info-divider"></div>
+            
+            <div class="info-header mb-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
+                <div>
+                    <h2 class="text-3xl font-bold text-75 mb-1">個人經歷</h2>
+                    <p class="text-sm text-50">Timeline of my professional journey and achievements.</p>
+                </div>
+                <div class="flex flex-wrap gap-2" id="category-filters">
+                    <button class="filter-btn active transition-all text-sm px-4 py-1.5 rounded-xl font-bold" data-category="all">
+                        全部
+                    </button>
+                    {Object.keys(categoryIcons).map(cat => (
+                        <button class="filter-btn transition-all text-sm px-4 py-1.5 rounded-xl font-bold" data-category={cat}>
+                            {cat}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            <div class="timeline-sections">
+                {years.map((year) => (
+                    <section class="mb-8 year-section" data-years={year}>
+                        <div class="flex flex-row w-full items-center h-[3.75rem] mb-2">
+                            <div class="w-[15%] md:w-[10%] transition text-2xl font-bold text-right text-75">
+                                {year}
+                            </div>
+                            <div class="w-[15%] md:w-[10%]">
+                                <div
+                                    class="h-3 w-3 bg-none rounded-full outline outline-[var(--primary)] mx-auto
+                                    -outline-offset-[2px] z-50 outline-3"
+                                ></div>
+                            </div>
+                            <div class="w-[70%] md:w-[80%] transition text-left text-50 font-medium">
+                                <span class="item-count">{groupedItems[year].length}</span> 項記錄
+                            </div>
+                        </div>
+                        <ol class="timeline-list">
+                            {groupedItems[year].map((item) => (
+                                <li class="timeline-item" data-category={item.category}>
+                                    <div class="group btn-plain !block w-full rounded-xl hover:text-[initial] py-3 px-2">
+                                        <div class="flex flex-row justify-start items-center h-full">
+                                            <!-- Left: Category Icon + Date -->
+                                            <div class="w-[15%] md:w-[10%] transition flex flex-col items-end justify-center">
+                                                <div class="flex items-center gap-1.5 text-[var(--primary)] mb-0.5">
+                                                    <Icon name={categoryIcons[item.category as keyof typeof categoryIcons]} class="text-xs" />
+                                                    <span class="text-[10px] font-bold uppercase tracking-tighter opacity-80">{item.category}</span>
+                                                </div>
+                                                <span class="font-mono text-xs text-50 tabular-nums whitespace-nowrap">
+                                                    {formatDate(item.datetime, item.category)}
+                                                </span>
+                                            </div>
+
+                                            <!-- Middle: Dot & Line -->
+                                            <div class="w-[15%] md:w-[10%] relative dash-line h-full flex items-center">
+                                                <div
+                                                    class="transition-all mx-auto w-1 h-1 rounded group-hover:h-5
+                                                    bg-[oklch(0.5_0.05_var(--hue))] group-hover:bg-[var(--primary)]
+                                                    outline outline-4 z-50
+                                                    outline-[var(--card-bg)]
+                                                    group-hover:outline-[var(--btn-plain-bg-hover)]
+                                                    group-active:outline-[var(--btn-plain-bg-active)]"
+                                                ></div>
+                                            </div>
+
+                                            <!-- Right: Title & Detail -->
+                                            <div class="w-[70%] md:w-[80%] text-left">
+                                                <h4 class="font-bold text-75 group-hover:text-[var(--primary)] transition-all leading-tight pr-4">
+                                                    {item.title}
+                                                </h4>
+                                                {item.detail && (
+                                                    <p class="text-xs text-50 mt-1 opacity-80 line-clamp-2 md:line-clamp-none pr-4">
+                                                        {item.detail}
+                                                    </p>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                            ))}
+                        </ol>
+                    </section>
+                ))}
+            </div>
+            <p class="site-note mt-12 text-center text-xs text-30 italic">End of Timeline — Always building, always learning.</p>
         </div>
     </div>
 </MainGridLayout>
+
+<style>
+    .info-divider {
+        height: 1px;
+        margin: 2.5rem 0;
+        background: linear-gradient(90deg, var(--line-divider), transparent);
+    }
+
+    .filter-btn {
+        background-color: var(--btn-regular-bg);
+        color: var(--text-50);
+        border: 1px solid var(--line-divider);
+    }
+
+    .filter-btn:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+    }
+
+    .filter-btn.active {
+        background-color: var(--primary);
+        color: var(--card-bg);
+        border-color: var(--primary);
+        box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.3);
+    }
+
+    .year-section.hidden {
+        display: none;
+    }
+    
+    .timeline-item.hidden {
+        display: none;
+    }
+    
+    /* Ensure dash-line matches archive style but more refined */
+    .dash-line::before {
+        content: "";
+        position: absolute;
+        width: 2px;
+        height: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        background-image: linear-gradient(to bottom, var(--line-divider) 50%, transparent 50%);
+        background-size: 2px 8px;
+        z-index: 10;
+    }
+</style>
+<script>
+    function setupFilters() {
+        const filters = document.querySelectorAll('.filter-btn');
+        const items = document.querySelectorAll('.timeline-item');
+        const sections = document.querySelectorAll('.year-section');
+
+        filters.forEach(filter => {
+            filter.addEventListener('click', () => {
+                const category = filter.getAttribute('data-category');
+
+                // Update UI of buttons
+                filters.forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                filter.classList.add('active');
+
+                // Filter items
+                sections.forEach(section => {
+                    let visibleInYear = 0;
+                    const yearItems = section.querySelectorAll('.timeline-item');
+                    
+                    yearItems.forEach(item => {
+                        const itemCat = item.getAttribute('data-category');
+                        if (category === 'all' || itemCat === category) {
+                            item.classList.remove('hidden');
+                            visibleInYear++;
+                        } else {
+                            item.classList.add('hidden');
+                        }
+                    });
+
+                    // Update count display
+                    const countDisplay = section.querySelector('.item-count');
+                    if (countDisplay) {
+                        countDisplay.textContent = `${visibleInYear}`;
+                    }
+
+                    // Hide year if no items
+                    if (visibleInYear === 0) {
+                        section.classList.add('hidden');
+                    } else {
+                        section.classList.remove('hidden');
+                    }
+                });
+            });
+        });
+    }
+
+    // Initialize on load and after swup transitions
+    setupFilters();
+    if (window.swup) {
+        window.swup.hooks.on('page:view', setupFilters);
+    } else {
+        document.addEventListener('swup:enable', () => {
+            window.swup.hooks.on('page:view', setupFilters);
+        });
+    }
+</script>
