@@ -145,6 +145,44 @@ function formatDate(dateStr: string, category: string) {
                 ))}
             </div>
             <p class="site-note mt-12 text-center text-xs text-30 italic">End of Timeline — Always building, always learning.</p>
+            <!-- Inline so swup's scripts plugin re-runs it after page transitions; bundled scripts are hoisted to <head> and only run on full page load -->
+            <script is:inline>
+                (() => {
+                    const container = document.getElementById('category-filters');
+                    if (!container) return;
+
+                    container.addEventListener('click', (event) => {
+                        const filter = event.target.closest('.filter-btn');
+                        if (!filter) return;
+                        const category = filter.getAttribute('data-category');
+
+                        // Update UI of buttons
+                        container.querySelectorAll('.filter-btn').forEach(btn => {
+                            btn.classList.toggle('active', btn === filter);
+                        });
+
+                        // Filter items
+                        document.querySelectorAll('.year-section').forEach(section => {
+                            let visibleInYear = 0;
+
+                            section.querySelectorAll('.timeline-item').forEach(item => {
+                                const visible = category === 'all' || item.getAttribute('data-category') === category;
+                                item.classList.toggle('hidden', !visible);
+                                if (visible) visibleInYear++;
+                            });
+
+                            // Update count display
+                            const countDisplay = section.querySelector('.item-count');
+                            if (countDisplay) {
+                                countDisplay.textContent = `${visibleInYear}`;
+                            }
+
+                            // Hide year if no items
+                            section.classList.toggle('hidden', visibleInYear === 0);
+                        });
+                    });
+                })();
+            </script>
         </div>
     </div>
 </MainGridLayout>
@@ -195,61 +233,3 @@ function formatDate(dateStr: string, category: string) {
         z-index: 10;
     }
 </style>
-<script>
-    function setupFilters() {
-        const filters = document.querySelectorAll('.filter-btn');
-        const items = document.querySelectorAll('.timeline-item');
-        const sections = document.querySelectorAll('.year-section');
-
-        filters.forEach(filter => {
-            filter.addEventListener('click', () => {
-                const category = filter.getAttribute('data-category');
-
-                // Update UI of buttons
-                filters.forEach(btn => {
-                    btn.classList.remove('active');
-                });
-                filter.classList.add('active');
-
-                // Filter items
-                sections.forEach(section => {
-                    let visibleInYear = 0;
-                    const yearItems = section.querySelectorAll('.timeline-item');
-                    
-                    yearItems.forEach(item => {
-                        const itemCat = item.getAttribute('data-category');
-                        if (category === 'all' || itemCat === category) {
-                            item.classList.remove('hidden');
-                            visibleInYear++;
-                        } else {
-                            item.classList.add('hidden');
-                        }
-                    });
-
-                    // Update count display
-                    const countDisplay = section.querySelector('.item-count');
-                    if (countDisplay) {
-                        countDisplay.textContent = `${visibleInYear}`;
-                    }
-
-                    // Hide year if no items
-                    if (visibleInYear === 0) {
-                        section.classList.add('hidden');
-                    } else {
-                        section.classList.remove('hidden');
-                    }
-                });
-            });
-        });
-    }
-
-    // Initialize on load and after swup transitions
-    setupFilters();
-    if (window.swup) {
-        window.swup.hooks.on('page:view', setupFilters);
-    } else {
-        document.addEventListener('swup:enable', () => {
-            window.swup.hooks.on('page:view', setupFilters);
-        });
-    }
-</script>
