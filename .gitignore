@@ -32,3 +32,4 @@ yarn.lock
 
 # wrangler
 .wrangler/
+.dev.vars*
