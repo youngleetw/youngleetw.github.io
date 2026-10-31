@@ -1,0 +1,13 @@
+{
+	"name": "xyounglee-blog",
+	"compatibility_date": "2026-10-01",
+	"assets": {
+		"directory": "./dist"
+	},
+	"routes": [
+		{
+			"pattern": "blog.xyounglee.com",
+			"custom_domain": true
+		}
+	]
+}
